@@ -11,14 +11,15 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
-    private int m_Points;
+    
+    //private int m_Points;
     
     private bool m_GameOver = false;
 
-    
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +37,14 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        GameOptions.instance.playerScore.score = 0;
+
+        if (GameOptions.instance.highScore.score == 0)
+            HighScoreText.text = $"Best Score : Name : 0";
+        else
+            HighScoreText.text = $"Best Score : {GameOptions.instance.highScore.playerName} : {GameOptions.instance.highScore.score}";
+
     }
 
     private void Update()
@@ -64,13 +73,23 @@ public class MainManager : MonoBehaviour
 
     void AddPoint(int point)
     {
-        m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        //m_Points += point;
+        //ScoreText.text = $"Score : {m_Points}";
+
+        GameOptions.instance.playerScore.score += point;
+        ScoreText.text = $"Score : {GameOptions.instance.playerScore.score}";
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        if (GameOptions.instance.playerScore.score > GameOptions.instance.highScore.score)
+        {
+            GameOptions.instance.highScore = new GameOptions.HighScore(GameOptions.instance.playerScore.playerName, GameOptions.instance.playerScore.score);
+            HighScoreText.text = $"Best Score : {GameOptions.instance.highScore.playerName} : {GameOptions.instance.highScore.score}";
+            GameOptions.instance.SaveHighScore(GameOptions.instance.highScore);
+        }
     }
 }
